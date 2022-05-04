@@ -23,8 +23,41 @@
             myStep1:
                 jobExecutionContext에서 MY.COUNT 값을 불러옴.
                 처음엔 값이 없기 때문에 기본값인 0을 콘솔에 출력하고 1을 jobExecutionContext에 저장.
-            ]
+
+            myStep2:
+                jobExecutionContext에서 MY.COUNT 값을 불러옴.
+                1을 콘솔에 출력하고 2를 jobExecutionContext에 저장.
+
+            myStep3:
+               SPEL을 사용해서 jobExecutionContext에서 MY.COUNT 값을 불러와 NoOpTasklet의 setter를 2를 콘솔에 출력하고 3을 jobExecutionContext에 저장.
+
+            JobExecutionContext는 Map<String, Object> 와 같다고 생각하면 된다.
+            공유하고자 하는 객체를 맵에 넣으면 Job 안에 있는 모든 컴포넌트들이 사용 할 수 있다.
+            ]]>
         </description>
+
+        <step id="myStep1" next="myStep2">
+            <tasklet ref="counterIncrementerTasklet"/>
+        </step>
+
+        <step id="myStep2" next="myStep3">
+            <tasklet ref="counterIncrementerTasklet"/>
+        </step>
+
+        <step id="myStep3">
+            <tasklet ref="counterIncrementerTasklet2"/>
+        </step>
     </batch:job>
+
+    <bean id="counterIncrementerTasklet"
+          class="com.gunho.example2.CounterIncrementerTasklet"
+          scope="step" />
+
+    <bean id="counterIncrementerTasklet2"
+          class="com.gunho.example2.CounterIncrementerTasklet"
+          scope="step">
+        <property name="counter"
+                  value="#{jobExecutionContext['MY.COUNTER']}" />
+    </bean>
 
 </beans>
